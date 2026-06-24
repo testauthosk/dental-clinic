@@ -188,6 +188,26 @@ footer a:hover{color:#fff}
 .la{animation:up .85s var(--ease) both}
 .la.d1{animation-delay:.10s}.la.d2{animation-delay:.22s}.la.d3{animation-delay:.34s}
 @media(prefers-reduced-motion:reduce){.la{animation:none}}
+/* GSAP takes over reveals when loaded */
+html.gsap-on .rv{opacity:1;transform:none;transition:none}
+html.gsap-on{scroll-behavior:auto}
+.tilt-wrap{transform-style:preserve-3d;will-change:transform}
+/* duotone-lite: cohesive desaturated art-direction on photos */
+.hero-visual img,.philo-visual img,.doc .pf img{filter:grayscale(.3) contrast(1.03) brightness(1.01)}
+/* bottom floating nav (mobile) — PayerPay style: pill + sliding indicator */
+.botnav{display:none}
+@media(max-width:680px){
+  .botnav{display:flex;position:fixed;left:14px;right:14px;bottom:14px;z-index:40;padding:7px;
+    background:rgba(246,249,252,.93);backdrop-filter:blur(18px) saturate(1.1);border:1px solid var(--line);
+    border-radius:22px;box-shadow:0 18px 44px -14px rgba(7,40,60,.5)}
+  .bn-ind{position:absolute;top:7px;bottom:7px;left:0;width:25%;border-radius:16px;background:var(--accent);
+    box-shadow:0 6px 16px -6px rgba(0,107,149,.6);transition:transform .34s cubic-bezier(.4,0,.2,1),width .34s cubic-bezier(.4,0,.2,1);z-index:1}
+  .bn-tab{position:relative;flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:9px 0 7px;z-index:2;
+    color:var(--ink-3);font-size:10px;font-weight:600;letter-spacing:.01em;transition:color .32s var(--ease)}
+  .bn-tab svg{width:20px;height:20px}
+  .bn-tab.active{color:#fff}
+  body{padding-bottom:90px}
+}
 
 @media(max-width:980px){
   .hero-grid,.philo-grid,.ba-grid{grid-template-columns:1fr;gap:40px}
@@ -199,7 +219,7 @@ footer a:hover{color:#fff}
 @media(max-width:680px){
   .wrap{padding:0 20px}
   .nav-links,.nav-phone{display:none}
-  .burger{display:flex}
+  .burger{display:none}
   .hero{padding:120px 0 70px}
   section{padding:80px 0}
   .sec-head{margin-bottom:40px}
@@ -244,7 +264,15 @@ footer a:hover{color:#fff}
   <a href="#book" class="btn btn-primary" data-close>Записаться на консультацию</a>
 </div>
 
-<section class="hero">
+<nav class="botnav" id="botnav" aria-label="Навигация">
+  <span class="bn-ind" id="bnInd"></span>
+  <a href="#top" class="bn-tab" data-sec="top"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M3 11l9-7 9 7M5 10v10h14V10"/></svg><span>Главная</span></a>
+  <a href="#services" class="bn-tab" data-sec="services"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><path d="M4 6h16M4 12h16M4 18h11"/></svg><span>Услуги</span></a>
+  <a href="#team" class="bn-tab" data-sec="team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><circle cx="12" cy="8" r="3.2"/><path d="M5 20c0-3.6 3.1-6 7-6s7 2.4 7 6"/></svg><span>Врачи</span></a>
+  <a href="#book" class="bn-tab" data-sec="book"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg><span>Запись</span></a>
+</nav>
+
+<section class="hero" id="top">
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <span class="eyebrow la">Частная клиника · Братислава</span>
@@ -395,31 +423,67 @@ footer a:hover{color:#fff}
   </div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.13.0/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.3.4/dist/lenis.min.js"></script>
 <script>
-const head=document.getElementById('head');
-addEventListener('scroll',()=>head.classList.toggle('scrolled',scrollY>20),{passive:true});
-const drawer=document.getElementById('drawer');
-document.getElementById('burger').onclick=()=>drawer.classList.add('open');
-document.getElementById('x').onclick=()=>drawer.classList.remove('open');
-drawer.querySelectorAll('[data-close]').forEach(a=>a.onclick=()=>drawer.classList.remove('open'));
-// robust scroll-based reveal + count-up — content NEVER stays blank (no IntersectionObserver edge cases)
 (function(){
-  const items=[...document.querySelectorAll('.rv')];
-  const nums=[...document.querySelectorAll('[data-to]')];
-  const fmt=n=>n>=1000?n.toLocaleString('ru-RU'):n;
-  const countup=el=>{el.dataset.done=1;const to=+el.dataset.to,span=el.querySelector('.cu');let t0=null;const dur=1400;
-    const step=t=>{if(!t0)t0=t;const p=Math.min((t-t0)/dur,1);span.textContent=fmt(Math.round(to*(1-Math.pow(1-p,3))));if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)};
-  const check=()=>{const h=innerHeight;
-    for(const el of items){if(!el.classList.contains('in')&&el.getBoundingClientRect().top<h*0.92)el.classList.add('in')}
-    for(const el of nums){if(!el.dataset.done&&el.getBoundingClientRect().top<h*0.85)countup(el)}};
-  check();['scroll','resize','load'].forEach(ev=>addEventListener(ev,check,{passive:true}));setTimeout(check,250);
+'use strict';
+var head=document.getElementById('head');
+var drawer=document.getElementById('drawer');
+if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('x');
+  if(bg)bg.onclick=function(){drawer.classList.add('open')};if(bx)bx.onclick=function(){drawer.classList.remove('open')};
+  drawer.querySelectorAll('[data-close]').forEach(function(a){a.onclick=function(){drawer.classList.remove('open')}});}
+/* bottom floating nav — sliding indicator + scrollspy */
+(function(){
+  var bn=document.getElementById('botnav');if(!bn)return;
+  var tabs=[].slice.call(bn.querySelectorAll('.bn-tab')),ind=document.getElementById('bnInd');
+  var secs=tabs.map(function(t){return document.getElementById(t.dataset.sec)});
+  var active=-1;
+  function moveTo(i){var t=tabs[i];if(!t)return;ind.style.width=t.offsetWidth+'px';ind.style.transform='translateX('+t.offsetLeft+'px)';
+    tabs.forEach(function(z){z.classList.remove('active')});t.classList.add('active');active=i;}
+  function spy(){var y=(window.scrollY||0)+innerHeight*0.42,idx=0;secs.forEach(function(s,i){if(s&&s.offsetTop<=y)idx=i});if(idx!==active)moveTo(idx);}
+  tabs.forEach(function(t,i){t.addEventListener('click',function(){setTimeout(function(){moveTo(i)},60)})});
+  addEventListener('scroll',spy,{passive:true});addEventListener('resize',function(){if(active>=0)moveTo(active)});
+  requestAnimationFrame(function(){moveTo(0);spy();});
 })();
+/* before/after compare (always) */
 (function(){
-  const c=document.getElementById('compare'),after=document.getElementById('afterLayer'),h=document.getElementById('handle');if(!c)return;
-  const set=x=>{const r=c.getBoundingClientRect();let p=(x-r.left)/r.width;p=Math.max(0,Math.min(1,p));after.style.clipPath=`inset(0 0 0 ${p*100}%)`;h.style.left=(p*100)+'%';};
-  let drag=false;const down=e=>{drag=true;set((e.touches?e.touches[0]:e).clientX)},move=e=>{if(drag)set((e.touches?e.touches[0]:e).clientX)},up=()=>drag=false;
-  c.addEventListener('mousedown',down);c.addEventListener('touchstart',down,{passive:true});addEventListener('mousemove',move);addEventListener('touchmove',move,{passive:true});addEventListener('mouseup',up);addEventListener('touchend',up);
-  c.addEventListener('mousemove',e=>{if(!drag)set(e.clientX)});
+  var c=document.getElementById('compare');if(!c)return;
+  var after=document.getElementById('afterLayer'),h=document.getElementById('handle');
+  function set(x){var r=c.getBoundingClientRect();var p=Math.max(0,Math.min(1,(x-r.left)/r.width));after.style.clipPath='inset(0 0 0 '+(p*100)+'%)';h.style.left=(p*100)+'%';}
+  var drag=false;function dn(e){drag=true;set((e.touches?e.touches[0]:e).clientX)}function mv(e){if(drag)set((e.touches?e.touches[0]:e).clientX)}function up(){drag=false}
+  c.addEventListener('mousedown',dn);c.addEventListener('touchstart',dn,{passive:true});addEventListener('mousemove',mv);addEventListener('touchmove',mv,{passive:true});addEventListener('mouseup',up);addEventListener('touchend',up);
+  c.addEventListener('mousemove',function(e){if(!drag)set(e.clientX)});
+})();
+addEventListener('scroll',function(){head.classList.toggle('scrolled',(window.scrollY||0)>20)},{passive:true});
+/* ===== MOTION: GSAP rich (LIC-grade), else robust fallback ===== */
+var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+var fmt=function(n){return n>=1000?n.toLocaleString('ru-RU'):n};
+if(reduce||!window.gsap||!window.ScrollTrigger){
+  var items=[].slice.call(document.querySelectorAll('.rv')),nums=[].slice.call(document.querySelectorAll('[data-to]'));
+  var cu=function(el){el.dataset.done=1;var to=+el.dataset.to,span=el.querySelector('.cu'),t0=null,dur=1400;function st(t){if(!t0)t0=t;var p=Math.min((t-t0)/dur,1);span.textContent=fmt(Math.round(to*(1-Math.pow(1-p,3))));if(p<1)requestAnimationFrame(st)}requestAnimationFrame(st)};
+  var ck=function(){var hh=innerHeight;items.forEach(function(el){if(!el.classList.contains('in')&&el.getBoundingClientRect().top<hh*.92)el.classList.add('in')});nums.forEach(function(el){if(!el.dataset.done&&el.getBoundingClientRect().top<hh*.85)cu(el)})};
+  ck();['scroll','resize','load'].forEach(function(e){addEventListener(e,ck,{passive:true})});setTimeout(ck,250);
+  return;
+}
+gsap.registerPlugin(ScrollTrigger);
+document.documentElement.classList.add('gsap-on');
+var lenis=null;
+if(window.Lenis){lenis=new Lenis({lerp:.11,smoothWheel:true});lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(function(t){lenis.raf(t*1000)});gsap.ticker.lagSmoothing(0);}
+document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href');if(id.length<2)return;var t=document.querySelector(id);if(!t)return;e.preventDefault();if(lenis)lenis.scrollTo(t,{offset:-58,duration:1.3,easing:function(x){return 1-Math.pow(1-x,4)}});else t.scrollIntoView({behavior:'smooth'})})});
+var E='expo.out';
+document.querySelectorAll('.philo-visual').forEach(function(fig){fig.classList.remove('rv');var img=fig.querySelector('img');gsap.set(fig,{clipPath:'inset(0% 0% 100% 0%)'});if(img)gsap.set(img,{scale:1.16,rotate:2});var tl=gsap.timeline({scrollTrigger:{trigger:fig,start:'top 88%',once:true}});tl.to(fig,{clipPath:'inset(0% 0% 0% 0%)',duration:1.1,ease:E},0);if(img)tl.to(img,{scale:1,rotate:0,duration:1.6,ease:E},0)});
+var ci=0;document.querySelectorAll('.svc,.doc').forEach(function(el){el.classList.remove('rv');var left=(ci++%2)===0;gsap.set(el,{autoAlpha:0,y:52,rotate:left?-3:3,transformOrigin:left?'0% 100%':'100% 100%'});gsap.to(el,{autoAlpha:1,y:0,rotate:0,duration:1.1,ease:E,scrollTrigger:{trigger:el,start:'top 93%',once:true}})});
+document.querySelectorAll('.rv').forEach(function(el){gsap.set(el,{autoAlpha:0,y:38});gsap.to(el,{autoAlpha:1,y:0,duration:1,ease:E,scrollTrigger:{trigger:el,start:'top 93%',once:true}})});
+var hv=document.querySelector('.hero-visual img');if(hv)gsap.to(hv,{yPercent:7,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:.6}});
+function runCount(el){el.dataset.done=1;var to=+el.dataset.to,span=el.querySelector('.cu'),o={v:0};gsap.to(o,{v:to,duration:1.6,ease:'expo.out',onUpdate:function(){span.textContent=fmt(Math.round(o.v))}})}
+document.querySelectorAll('[data-to]').forEach(function(el){ScrollTrigger.create({trigger:el,start:'top 88%',once:true,onEnter:function(){runCount(el)}})});
+if(matchMedia('(pointer:fine)').matches){
+  document.querySelectorAll('.btn').forEach(function(btn){var s=.28;btn.addEventListener('mousemove',function(e){var r=btn.getBoundingClientRect();gsap.to(btn,{x:(e.clientX-r.left-r.width/2)*s,y:(e.clientY-r.top-r.height/2)*s,scale:1.04,duration:.4,ease:'power3.out'})});btn.addEventListener('mouseleave',function(){gsap.to(btn,{x:0,y:0,scale:1,duration:.8,ease:'elastic.out(1,.42)'})})});
+  document.querySelectorAll('.doc,.floatcard').forEach(function(card){card.classList.add('tilt-wrap');card.addEventListener('mousemove',function(e){var r=card.getBoundingClientRect();gsap.to(card,{rotateY:((e.clientX-r.left)/r.width-.5)*8,rotateX:-((e.clientY-r.top)/r.height-.5)*8,y:-5,transformPerspective:800,duration:.5,ease:'power2.out'})});card.addEventListener('mouseleave',function(){gsap.to(card,{rotateY:0,rotateX:0,y:0,duration:.9,ease:'elastic.out(1,.4)'})})});
+}
+setTimeout(function(){document.querySelectorAll('.rv,.svc,.doc,.philo-visual').forEach(function(el){if(getComputedStyle(el).opacity==='0'){var r=el.getBoundingClientRect();if(r.top<innerHeight&&r.bottom>0)gsap.to(el,{autoAlpha:1,y:0,rotate:0,clipPath:'inset(0%)',duration:.5})}});ScrollTrigger.refresh();},3500);
 })();
 </script>
 </body>
