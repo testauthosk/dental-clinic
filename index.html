@@ -253,15 +253,18 @@ footer ul{list-style:none;display:flex;flex-direction:column;gap:11px;font-size:
 .cselect.open .cselect-chev{transform:rotate(180deg);color:var(--accent)}
 /* overlay (does NOT push content); auto-flips up/down by available space */
 /* border lives ON the collapsing box (tracks height in perfect sync, no opacity); visibility hides the 0px residual only AFTER collapse */
-.cselect-panel{position:absolute;left:0;right:0;top:100%;z-index:30;overflow:hidden;max-height:0;visibility:hidden;
+/* overlay above page (z30); collapses by max-height with the border ON the box (stays in sync). The small
+   curved remainder fades out UNIFORMLY (border+bg+options together, one opacity) just before it would
+   flatten into a visible line — no desync because options have no opacity of their own */
+.cselect-panel{position:absolute;left:0;right:0;top:100%;z-index:30;overflow:hidden;max-height:0;opacity:0;
   display:flex;flex-direction:column;justify-content:flex-start;
   background:var(--surface);border:1px solid var(--accent);border-top:0;border-radius:0 0 12px 12px;
   box-shadow:0 22px 44px -20px rgba(7,40,60,.45);
-  transition:max-height .9s cubic-bezier(.22,1,.36,1),visibility 0s linear .9s}
+  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .22s ease .45s}
 .cselect.up .cselect-panel{top:auto;bottom:100%;justify-content:flex-end;border-top:1px solid var(--accent);border-bottom:0;border-radius:12px 12px 0 0;
   box-shadow:0 -22px 44px -20px rgba(7,40,60,.45)}
-.cselect.open .cselect-panel{max-height:320px;visibility:visible;
-  transition:max-height .9s cubic-bezier(.22,1,.36,1),visibility 0s linear 0s}
+.cselect.open .cselect-panel{max-height:320px;opacity:1;
+  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .15s ease}
 /* options are a SOLID block — no independent opacity/stagger; the panel's max-height clips them
    in lockstep with the border so they never desync */
 .cselect-opt{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;
