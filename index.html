@@ -239,13 +239,19 @@ footer a:hover{color:#fff}
   font-family:Inter;font-size:15px;font-weight:500;cursor:pointer;text-align:left;position:relative;z-index:2;
   transition:border-color .3s var(--ease),border-radius .3s var(--ease)}
 @media(hover:hover){.cselect-trigger:hover{border-color:var(--accent)}}
-.cselect.open .cselect-trigger{border-color:var(--accent);border-radius:10px 10px 0 0}
+.cselect.open{z-index:5}
+.cselect.open .cselect-trigger{border-color:var(--accent)}
+.cselect.open:not(.up) .cselect-trigger{border-radius:10px 10px 0 0}
+.cselect.up.open .cselect-trigger{border-radius:0 0 10px 10px}
 .cselect-chev{width:16px;height:16px;color:var(--ink-3);flex:none;transition:transform .45s var(--ease),color .3s ease}
 .cselect.open .cselect-chev{transform:rotate(180deg);color:var(--accent)}
-.cselect-panel{overflow:hidden;max-height:0;opacity:0;
+/* overlay (does NOT push content); auto-flips up/down by available space */
+.cselect-panel{position:absolute;left:0;right:0;top:100%;z-index:30;overflow:hidden;max-height:0;opacity:0;
   background:var(--surface);border:1px solid var(--accent);border-top:0;border-radius:0 0 12px 12px;
-  box-shadow:0 22px 40px -22px rgba(7,40,60,.4);
+  box-shadow:0 22px 44px -20px rgba(7,40,60,.45);
   transition:max-height .55s cubic-bezier(.22,1,.36,1),opacity .25s ease}
+.cselect.up .cselect-panel{top:auto;bottom:100%;border-top:1px solid var(--accent);border-bottom:0;border-radius:12px 12px 0 0;
+  box-shadow:0 -22px 44px -20px rgba(7,40,60,.45)}
 .cselect.open .cselect-panel{max-height:320px;opacity:1}
 .cselect-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;
   padding:13px 14px;border:0;border-top:1px solid var(--line);background:none;cursor:pointer;
@@ -806,7 +812,12 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   var trig=document.getElementById('cselTrigger'),val=document.getElementById('cselValue');
   var opts=[].slice.call(cs.querySelectorAll('.cselect-opt'));
   function close(){cs.classList.remove('open');trig.setAttribute('aria-expanded','false');}
-  trig.addEventListener('click',function(e){e.stopPropagation();var o=cs.classList.toggle('open');trig.setAttribute('aria-expanded',o?'true':'false');});
+  function open(){
+    var r=trig.getBoundingClientRect(),need=290,below=window.innerHeight-r.bottom;
+    cs.classList.toggle('up', below<need && r.top>below);  /* not enough room below + more room above -> open upward */
+    cs.classList.add('open');trig.setAttribute('aria-expanded','true');
+  }
+  trig.addEventListener('click',function(e){e.stopPropagation();cs.classList.contains('open')?close():open();});
   opts.forEach(function(o){o.addEventListener('click',function(){val.textContent=o.textContent;opts.forEach(function(x){x.classList.remove('is-sel')});o.classList.add('is-sel');close();});});
   document.addEventListener('click',function(e){if(!cs.contains(e.target))close();});
 })();
