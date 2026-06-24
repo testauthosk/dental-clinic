@@ -47,11 +47,13 @@ img{display:block;max-width:100%}
 
 .btn{display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;padding:14px 24px;border-radius:var(--r-pill);transition:.2s var(--ease);cursor:pointer;border:1px solid transparent;white-space:nowrap}
 .btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:var(--accent-deep);transform:translateY(-1px)}
 .btn-ghost{border-color:var(--ink);color:var(--ink)}
-.btn-ghost:hover{background:var(--ink);color:var(--bg)}
 .btn-arrow svg{width:16px;height:16px;transition:transform .25s var(--ease)}
-.btn:hover .btn-arrow svg{transform:translateX(3px)}
+@media(hover:hover){
+  .btn-primary:hover{background:var(--accent-deep);transform:translateY(-1px)}
+  .btn-ghost:hover{background:var(--ink);color:var(--bg)}
+  .btn:hover .btn-arrow svg{transform:translateX(3px)}
+}
 
 header{position:fixed;top:0;left:0;right:0;z-index:20;transition:.35s var(--ease)}
 .nav{display:flex;align-items:center;justify-content:space-between;height:70px;transition:height .4s var(--ease)}
@@ -117,10 +119,12 @@ section{padding:120px 0}
 .svc .body p{color:var(--ink-2);font-size:15px;margin-top:5px;max-width:60ch}
 .svc .go{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--ink-2);transition:.3s var(--ease);flex:none}
 .svc .go svg{width:18px;height:18px;transition:transform .3s var(--ease)}
-.svc:hover{padding-left:22px;background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
-.svc:hover .body h3{color:var(--accent)}
-.svc:hover .go{background:var(--accent);border-color:var(--accent);color:#fff}
-.svc:hover .go svg{transform:translate(2px,-2px)}
+@media(hover:hover){
+  .svc:hover{padding-left:22px;background:linear-gradient(90deg,var(--accent-soft),transparent 70%)}
+  .svc:hover .body h3{color:var(--accent)}
+  .svc:hover .go{background:var(--accent);border-color:var(--accent);color:#fff}
+  .svc:hover .go svg{transform:translate(2px,-2px)}
+}
 
 .philo{background:var(--bg-2);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .philo-grid{display:grid;grid-template-columns:.9fr 1.1fr;gap:64px;align-items:center}
@@ -174,14 +178,14 @@ section{padding:120px 0}
 .cta p{color:var(--on-dark-2);max-width:46ch;margin:0 auto 38px}
 .cta .row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
 .cta .btn-ghost{border-color:rgba(255,255,255,.3);color:#fff}
-.cta .btn-ghost:hover{background:#fff;color:var(--dark)}
+@media(hover:hover){.cta .btn-ghost:hover{background:#fff;color:var(--dark)}}
 
 footer{background:var(--dark-2);color:var(--on-dark-2);padding:80px 0 36px}
 .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:40px;padding-bottom:50px;border-bottom:1px solid rgba(255,255,255,.1)}
 footer .brand{color:#fff;margin-bottom:16px}
 footer h4{color:#fff;font-size:13px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;margin-bottom:18px}
 footer ul{list-style:none;display:flex;flex-direction:column;gap:11px;font-size:14.5px}
-footer a:hover{color:#fff}
+@media(hover:hover){footer a:hover{color:#fff}}
 .foot-bottom{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding-top:26px;font-size:13px;color:var(--on-dark-2)}
 
 /* ===== Booking section — calendar (ported from command-center) + slots ===== */
@@ -285,7 +289,7 @@ footer a:hover{color:#fff}
 /* ===== Personal cabinet — header entry + login modal ===== */
 .nav-cab{display:inline-flex;align-items:center;gap:7px;font-size:14.5px;font-weight:500;color:var(--ink-2);transition:color .2s,border-color .2s,background .2s}
 .nav-cab svg{width:18px;height:18px}
-.nav-cab:hover{color:var(--accent)}
+@media(hover:hover){.nav-cab:hover{color:var(--accent)}}
 .cab-modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;
   background:rgba(7,21,37,.42);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .35s var(--ease)}
 .cab-modal.show{opacity:1;pointer-events:auto}
