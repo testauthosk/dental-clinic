@@ -61,7 +61,7 @@ header{position:fixed;top:0;left:0;right:0;z-index:20;transition:.35s var(--ease
 .nav-links a:hover::after{width:100%}
 .nav-right{display:flex;align-items:center;gap:18px}
 .nav-phone{font-weight:600;font-size:15px;letter-spacing:.01em}
-header.scrolled{background:rgba(239,243,248,.85);backdrop-filter:blur(14px) saturate(1.1);border-bottom:1px solid var(--line)}
+header.scrolled{background:rgba(239,243,248,.95);backdrop-filter:blur(16px) saturate(1.1);border-bottom:1px solid var(--line)}
 header.scrolled .nav{height:64px}
 .burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:6px}
 .burger span{width:24px;height:2px;background:var(--ink);transition:.3s var(--ease)}
@@ -402,16 +402,18 @@ const drawer=document.getElementById('drawer');
 document.getElementById('burger').onclick=()=>drawer.classList.add('open');
 document.getElementById('x').onclick=()=>drawer.classList.remove('open');
 drawer.querySelectorAll('[data-close]').forEach(a=>a.onclick=()=>drawer.classList.remove('open'));
-const io=new IntersectionObserver((es)=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.14,rootMargin:'0px 0px -8% 0px'});
-document.querySelectorAll('.rv').forEach(el=>io.observe(el));
-const fmt=n=>n>=1000?n.toLocaleString('ru-RU'):n;
-const cio=new IntersectionObserver((es)=>es.forEach(e=>{
-  if(!e.isIntersecting)return;
-  const el=e.target,to=+el.dataset.to,span=el.querySelector('.cu');let t0=null;const dur=1400;
-  const step=(t)=>{if(!t0)t0=t;const p=Math.min((t-t0)/dur,1);const ease=1-Math.pow(1-p,3);span.textContent=fmt(Math.round(to*ease));if(p<1)requestAnimationFrame(step)};
-  requestAnimationFrame(step);cio.unobserve(el);
-},{threshold:.5});
-document.querySelectorAll('[data-to]').forEach(el=>cio.observe(el));
+// robust scroll-based reveal + count-up — content NEVER stays blank (no IntersectionObserver edge cases)
+(function(){
+  const items=[...document.querySelectorAll('.rv')];
+  const nums=[...document.querySelectorAll('[data-to]')];
+  const fmt=n=>n>=1000?n.toLocaleString('ru-RU'):n;
+  const countup=el=>{el.dataset.done=1;const to=+el.dataset.to,span=el.querySelector('.cu');let t0=null;const dur=1400;
+    const step=t=>{if(!t0)t0=t;const p=Math.min((t-t0)/dur,1);span.textContent=fmt(Math.round(to*(1-Math.pow(1-p,3))));if(p<1)requestAnimationFrame(step)};requestAnimationFrame(step)};
+  const check=()=>{const h=innerHeight;
+    for(const el of items){if(!el.classList.contains('in')&&el.getBoundingClientRect().top<h*0.92)el.classList.add('in')}
+    for(const el of nums){if(!el.dataset.done&&el.getBoundingClientRect().top<h*0.85)countup(el)}};
+  check();['scroll','resize','load'].forEach(ev=>addEventListener(ev,check,{passive:true}));setTimeout(check,250);
+})();
 (function(){
   const c=document.getElementById('compare'),after=document.getElementById('afterLayer'),h=document.getElementById('handle');if(!c)return;
   const set=x=>{const r=c.getBoundingClientRect();let p=(x-r.left)/r.width;p=Math.max(0,Math.min(1,p));after.style.clipPath=`inset(0 0 0 ${p*100}%)`;h.style.left=(p*100)+'%';};
