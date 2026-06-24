@@ -249,10 +249,13 @@ footer a:hover{color:#fff}
 .cselect-panel{position:absolute;left:0;right:0;top:100%;z-index:30;overflow:hidden;max-height:0;opacity:0;
   background:var(--surface);border:1px solid var(--accent);border-top:0;border-radius:0 0 12px 12px;
   box-shadow:0 22px 44px -20px rgba(7,40,60,.45);
-  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .3s ease}
+  /* CLOSE: collapse height .9s, fade out only at the very end (no abrupt cut) */
+  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .22s ease .62s}
 .cselect.up .cselect-panel{top:auto;bottom:100%;border-top:1px solid var(--accent);border-bottom:0;border-radius:12px 12px 0 0;
   box-shadow:0 -22px 44px -20px rgba(7,40,60,.45)}
-.cselect.open .cselect-panel{max-height:320px;opacity:1}
+.cselect.open .cselect-panel{max-height:320px;opacity:1;
+  /* OPEN: expand .9s, appear quickly */
+  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .25s ease}
 .cselect-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;
   padding:13px 14px;border:0;border-top:1px solid var(--line);background:none;cursor:pointer;
   font-family:Inter;font-size:14.5px;font-weight:500;color:var(--ink-2);
