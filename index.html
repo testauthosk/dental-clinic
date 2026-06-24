@@ -246,22 +246,23 @@ footer a:hover{color:#fff}
 .cselect-chev{width:16px;height:16px;color:var(--ink-3);flex:none;transition:transform .45s var(--ease),color .3s ease}
 .cselect.open .cselect-chev{transform:rotate(180deg);color:var(--accent)}
 /* overlay (does NOT push content); auto-flips up/down by available space */
-.cselect-panel{position:absolute;left:0;right:0;top:100%;z-index:30;overflow:hidden;max-height:0;opacity:0;
+/* border lives ON the collapsing box (tracks height in perfect sync, no opacity); visibility hides the 0px residual only AFTER collapse */
+.cselect-panel{position:absolute;left:0;right:0;top:100%;z-index:30;overflow:hidden;max-height:0;visibility:hidden;
+  display:flex;flex-direction:column;justify-content:flex-start;
   background:var(--surface);border:1px solid var(--accent);border-top:0;border-radius:0 0 12px 12px;
   box-shadow:0 22px 44px -20px rgba(7,40,60,.45);
-  /* CLOSE: collapse height .9s, fade out only at the very end (no abrupt cut) */
-  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .22s ease .62s}
-.cselect.up .cselect-panel{top:auto;bottom:100%;border-top:1px solid var(--accent);border-bottom:0;border-radius:12px 12px 0 0;
+  transition:max-height .9s cubic-bezier(.22,1,.36,1),visibility 0s linear .9s}
+.cselect.up .cselect-panel{top:auto;bottom:100%;justify-content:flex-end;border-top:1px solid var(--accent);border-bottom:0;border-radius:12px 12px 0 0;
   box-shadow:0 -22px 44px -20px rgba(7,40,60,.45)}
-.cselect.open .cselect-panel{max-height:320px;opacity:1;
-  /* OPEN: expand .9s, appear quickly */
-  transition:max-height .9s cubic-bezier(.22,1,.36,1),opacity .25s ease}
-.cselect-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;
+.cselect.open .cselect-panel{max-height:320px;visibility:visible;
+  transition:max-height .9s cubic-bezier(.22,1,.36,1),visibility 0s linear 0s}
+.cselect-opt{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;
   padding:13px 14px;border:0;border-top:1px solid var(--line);background:none;cursor:pointer;
   font-family:Inter;font-size:14.5px;font-weight:500;color:var(--ink-2);
   opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease),background .18s,color .18s}
 .cselect-opt:first-child{border-top:0}
 .cselect.open .cselect-opt{opacity:1;transform:none}
+.cselect.closing .cselect-opt{opacity:1;transform:none;transition:none}  /* keep options solid while collapsing (clip, not fade) */
 .cselect.open .cselect-opt:nth-child(1){transition-delay:.34s}
 .cselect.open .cselect-opt:nth-child(2){transition-delay:.42s}
 .cselect.open .cselect-opt:nth-child(3){transition-delay:.50s}
@@ -388,7 +389,7 @@ html.gsap-on{scroll-behavior:auto}
   .brand .dot{margin-bottom:11px}
   header .btn-primary{padding:9px 16px;font-size:13px}
   .hero{padding:108px 0 64px}
-  section{padding:80px 0}
+  section{padding:40px 0 72px}
   .sec-head{margin-bottom:40px}
   .strip-in{gap:14px}.strip-item{font-size:13px}
   .svc{grid-template-columns:36px 1fr auto;gap:14px;padding:22px 4px}
@@ -814,8 +815,14 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   var cs=document.getElementById('cselect');if(!cs)return;
   var trig=document.getElementById('cselTrigger'),val=document.getElementById('cselValue');
   var opts=[].slice.call(cs.querySelectorAll('.cselect-opt'));
-  function close(){cs.classList.remove('open');trig.setAttribute('aria-expanded','false');}
+  var closeTimer=null;
+  function close(){
+    if(!cs.classList.contains('open'))return;
+    cs.classList.add('closing');cs.classList.remove('open');trig.setAttribute('aria-expanded','false');
+    clearTimeout(closeTimer);closeTimer=setTimeout(function(){cs.classList.remove('closing');},900);
+  }
   function open(){
+    clearTimeout(closeTimer);cs.classList.remove('closing');
     var r=trig.getBoundingClientRect(),need=290,below=window.innerHeight-r.bottom;
     cs.classList.toggle('up', below<need && r.top>below);  /* not enough room below + more room above -> open upward */
     cs.classList.add('open');trig.setAttribute('aria-expanded','true');
@@ -839,7 +846,7 @@ gsap.registerPlugin(ScrollTrigger);
 document.documentElement.classList.add('gsap-on');
 var lenis=null;
 if(window.Lenis){lenis=new Lenis({lerp:.11,smoothWheel:true});window.lenisInstance=lenis;lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(function(t){lenis.raf(t*1000)});gsap.ticker.lagSmoothing(0);}
-document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href');if(id.length<2)return;var t=document.querySelector(id);if(!t)return;e.preventDefault();if(lenis)lenis.scrollTo(t,{offset:-58,duration:2.1,easing:function(x){return 1-Math.pow(1-x,4)}});else t.scrollIntoView({behavior:'smooth'})})});
+document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href');if(id.length<2)return;var t=document.querySelector(id);if(!t)return;e.preventDefault();if(lenis)lenis.scrollTo(t,{offset:(innerWidth<=680?-50:-62),duration:2.1,easing:function(x){return 1-Math.pow(1-x,4)}});else t.scrollIntoView({behavior:'smooth'})})});
 var E='expo.out';
 document.querySelectorAll('.philo-visual').forEach(function(fig){fig.classList.remove('rv');var img=fig.querySelector('img');gsap.set(fig,{clipPath:'inset(0% 0% 100% 0%)'});if(img)gsap.set(img,{scale:1.16,rotate:2});var tl=gsap.timeline({scrollTrigger:{trigger:fig,start:'top 88%',once:true}});tl.to(fig,{clipPath:'inset(0% 0% 0% 0%)',duration:1.1,ease:E},0);if(img)tl.to(img,{scale:1,rotate:0,duration:1.6,ease:E},0)});
 var ci=0;document.querySelectorAll('.svc,.doc').forEach(function(el){el.classList.remove('rv');var left=(ci++%2)===0;gsap.set(el,{autoAlpha:0,y:52,rotate:left?-3:3,transformOrigin:left?'0% 100%':'100% 100%'});gsap.to(el,{autoAlpha:1,y:0,rotate:0,duration:1.1,ease:E,scrollTrigger:{trigger:el,start:'top 93%',once:true}})});
