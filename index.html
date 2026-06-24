@@ -324,15 +324,27 @@ footer ul{list-style:none;display:flex;flex-direction:column;gap:11px;font-size:
   .nav-cab{width:38px;height:38px;justify-content:center;gap:0;border:1px solid var(--line);border-radius:50%;color:var(--ink);order:2}
   .nav-cab .cab-lbl{display:none}
 }
-/* ===== 2026 layer: animated gradient-mesh hero bg + custom cursor ===== */
-.hero{overflow:hidden}
-.hero-bg{position:absolute;inset:0;z-index:0;overflow:hidden;pointer-events:none}
-.hero-bg .blob{position:absolute;border-radius:50%;filter:blur(64px);opacity:.55;will-change:transform}
-.hero-bg .b1{width:48vw;height:48vw;left:-10vw;top:-8vw;background:radial-gradient(circle,rgba(0,107,149,.34),transparent 64%)}
-.hero-bg .b2{width:42vw;height:42vw;right:-8vw;top:0;background:radial-gradient(circle,rgba(46,196,176,.26),transparent 64%)}
-.hero-bg .b3{width:44vw;height:44vw;left:28vw;bottom:-16vw;background:radial-gradient(circle,rgba(0,81,111,.30),transparent 64%)}
-.hero .wrap{position:relative;z-index:1}
-@media(max-width:680px){.hero-bg .blob{filter:blur(46px);opacity:.5}}
+/* ===== 2026 layer: WebGL flowing-gradient hero (raw shader, zero-dep) + custom cursor ===== */
+.hero{overflow:hidden;min-height:88vh;display:flex;align-items:center;
+  /* static fallback gradient (mobile / no-WebGL / reduced-motion + baseline before WebGL paints) */
+  background-color:#EFF3F8;
+  background-image:
+    radial-gradient(120% 90% at 12% 8%, #F6F9FC 0%, rgba(246,249,252,0) 55%),
+    radial-gradient(110% 80% at 86% 16%, #46C4B0 0%, rgba(70,196,176,0) 46%),
+    radial-gradient(120% 95% at 80% 96%, #00516F 0%, rgba(0,81,111,0) 50%),
+    radial-gradient(130% 100% at 20% 90%, #006B95 0%, rgba(0,107,149,0) 54%),
+    linear-gradient(150deg,#EFF3F8 0%,#DCEAF0 100%);
+  background-blend-mode:soft-light,normal,normal,normal,normal}
+.hero-gl{position:absolute;inset:0;z-index:0;width:100%;height:100%;display:block;pointer-events:none;opacity:0;transition:opacity .9s ease}
+.hero.is-ready .hero-gl{opacity:1}
+.hero.no-webgl .hero-gl{display:none}
+.hero-scrim{position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    linear-gradient(100deg,rgba(244,247,251,.62) 0%,rgba(244,247,251,.26) 33%,rgba(244,247,251,0) 60%),
+    linear-gradient(180deg,rgba(244,247,251,.32) 0%,rgba(244,247,251,0) 40%,rgba(13,35,64,0) 80%,rgba(13,35,64,.06) 100%)}
+.hero .wrap{position:relative;z-index:1;width:100%}
+@media(prefers-reduced-motion:reduce){.hero-gl{display:none}}
+@media(max-width:680px){.hero{min-height:0}}
 /* SplitText: keep the headline hidden until JS reveals the masked lines (no flash). Gated on split-on
    (added only when SplitText actually loaded) so a CDN failure can't leave the headline invisible. */
 html.split-on .hero h1{opacity:0}
@@ -563,7 +575,8 @@ html.gsap-on{scroll-behavior:auto}
 </div>
 
 <section class="hero" id="top">
-  <div class="hero-bg" aria-hidden="true"><span class="blob b1"></span><span class="blob b2"></span><span class="blob b3"></span></div>
+  <canvas class="hero-gl" id="heroGL" aria-hidden="true"></canvas>
+  <div class="hero-scrim" aria-hidden="true"></div>
   <div class="wrap hero-grid">
     <div class="hero-copy">
       <span class="eyebrow la">Частная клиника · Братислава</span>
@@ -602,6 +615,24 @@ html.gsap-on{scroll-behavior:auto}
   </div>
 </div>
 
+<section class="journey" id="journey">
+  <div class="jn-pin">
+    <div class="wrap jn-grid">
+      <div class="jn-left">
+        <span class="eyebrow">Как проходит визит</span>
+        <div class="jn-num"><span class="jn-cur" id="jnCur">01</span><span class="jn-tot">/ 04</span></div>
+        <div class="jn-progress"><span class="jn-bar" id="jnBar"></span></div>
+      </div>
+      <div class="jn-steps">
+        <div class="jn-step"><span class="k">Шаг 01 · Консультация</span><h3>Знакомимся<br>и слушаем</h3><p>Осмотр, панорамный снимок и 3D-сканирование. Разбираем вашу ситуацию спокойно, без спешки и без страха.</p></div>
+        <div class="jn-step"><span class="k">Шаг 02 · План</span><h3>Честный план<br>с ценой</h3><p>Показываем варианты, сроки и стоимость заранее. Без навязывания — только то, что действительно нужно.</p></div>
+        <div class="jn-step"><span class="k">Шаг 03 · Лечение</span><h3>Без боли<br>и стресса</h3><p>Седация, лечение под микроскопом и щадящие протоколы. Вам комфортно на каждом этапе приёма.</p></div>
+        <div class="jn-step"><span class="k">Шаг 04 · Результат</span><h3>Результат<br>и гарантия</h3><p>Контрольный осмотр, рекомендации по уходу и гарантия на работы до 5 лет. Улыбка, которая остаётся с вами.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section id="services">
   <div class="wrap">
     <div class="sec-head rv">
@@ -628,24 +659,6 @@ html.gsap-on{scroll-behavior:auto}
     </div>
     <div class="philo-visual rv d1">
       <img src="assets/philo.jpg" alt="Врач LUMÉ за диагностикой по снимкам">
-    </div>
-  </div>
-</section>
-
-<section class="journey" id="journey">
-  <div class="jn-pin">
-    <div class="wrap jn-grid">
-      <div class="jn-left">
-        <span class="eyebrow">Как проходит визит</span>
-        <div class="jn-num"><span class="jn-cur" id="jnCur">01</span><span class="jn-tot">/ 04</span></div>
-        <div class="jn-progress"><span class="jn-bar" id="jnBar"></span></div>
-      </div>
-      <div class="jn-steps">
-        <div class="jn-step"><span class="k">Шаг 01 · Консультация</span><h3>Знакомимся<br>и слушаем</h3><p>Осмотр, панорамный снимок и 3D-сканирование. Разбираем вашу ситуацию спокойно, без спешки и без страха.</p></div>
-        <div class="jn-step"><span class="k">Шаг 02 · План</span><h3>Честный план<br>с ценой</h3><p>Показываем варианты, сроки и стоимость заранее. Без навязывания — только то, что действительно нужно.</p></div>
-        <div class="jn-step"><span class="k">Шаг 03 · Лечение</span><h3>Без боли<br>и стресса</h3><p>Седация, лечение под микроскопом и щадящие протоколы. Вам комфортно на каждом этапе приёма.</p></div>
-        <div class="jn-step"><span class="k">Шаг 04 · Результат</span><h3>Результат<br>и гарантия</h3><p>Контрольный осмотр, рекомендации по уходу и гарантия на работы до 5 лет. Улыбка, которая остаётся с вами.</p></div>
-      </div>
     </div>
   </div>
 </section>
@@ -972,6 +985,53 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
     var x2=document.getElementById('cabX2');if(x2)x2.addEventListener('click',closeCab);
   });
 })();
+/* ===== 2026: WebGL flowing-gradient hero (raw simplex-noise shader, zero-dep, license-clean). Own RAF — independent of GSAP/Lenis. Falls back to CSS static gradient on mobile/coarse/no-WebGL/reduced-motion. ===== */
+(function(){
+  'use strict';
+  var section=document.querySelector('.hero'),canvas=document.getElementById('heroGL');
+  if(!section||!canvas)return;
+  var SPEED=0.07,NOISE_SCALE=0.92,DPR_CAP=1.0;
+  var COLORS=[[0.905,0.945,0.968],[0.13,0.83,0.72],[0.000,0.47,0.64],[0.000,0.34,0.47]];
+  var mqReduce=matchMedia('(prefers-reduced-motion: reduce)'),mqCoarse=matchMedia('(pointer: coarse)');
+  function useFallback(){section.classList.add('no-webgl');}
+  if(mqReduce.matches||mqCoarse.matches){useFallback();return;}
+  var gl=canvas.getContext('webgl',{antialias:false,alpha:false,depth:false,stencil:false,powerPreference:'low-power',preserveDrawingBuffer:false});
+  if(!gl){useFallback();return;}
+  var VERT='attribute vec2 a_pos;varying vec2 v_uv;void main(){v_uv=a_pos*0.5+0.5;gl_Position=vec4(a_pos,0.0,1.0);}';
+  var FRAG=[
+    'precision highp float;varying vec2 v_uv;uniform float u_time;uniform vec2 u_res;uniform float u_scale;uniform vec3 u_c0;uniform vec3 u_c1;uniform vec3 u_c2;uniform vec3 u_c3;',
+    'vec3 mod289(vec3 x){return x-floor(x*(1.0/289.0))*289.0;}vec2 mod289(vec2 x){return x-floor(x*(1.0/289.0))*289.0;}vec3 permute(vec3 x){return mod289(((x*34.0)+1.0)*x);}',
+    'float snoise(vec2 v){const vec4 C=vec4(0.211324865405187,0.366025403784439,-0.577350269189626,0.024390243902439);vec2 i=floor(v+dot(v,C.yy));vec2 x0=v-i+dot(i,C.xx);vec2 i1=(x0.x>x0.y)?vec2(1.0,0.0):vec2(0.0,1.0);vec4 x12=x0.xyxy+C.xxzz;x12.xy-=i1;i=mod289(i);vec3 p=permute(permute(i.y+vec3(0.0,i1.y,1.0))+i.x+vec3(0.0,i1.x,1.0));vec3 m=max(0.5-vec3(dot(x0,x0),dot(x12.xy,x12.xy),dot(x12.zw,x12.zw)),0.0);m=m*m;m=m*m;vec3 x=2.0*fract(p*C.www)-1.0;vec3 h=abs(x)-0.5;vec3 ox=floor(x+0.5);vec3 a0=x-ox;m*=1.79284291400159-0.85373472095314*(a0*a0+h*h);vec3 g;g.x=a0.x*x0.x+h.x*x0.y;g.yz=a0.yz*x12.xz+h.yz*x12.yw;return 130.0*dot(m,g);}',
+    'float fbm(vec2 p){float f=0.0;f+=0.60*snoise(p);f+=0.30*snoise(p*2.03+7.1);return f;}',
+    'void main(){vec2 uv=v_uv;uv.x*=u_res.x/u_res.y;float t=u_time;vec2 q=uv*u_scale;float n1=fbm(q+vec2(t*0.10,t*-0.06));float n2=fbm(q*1.3+vec2(-t*0.07,t*0.09)+21.7);float n=0.5+0.5*(n1*0.95+n2*0.55);',
+    'vec3 col=mix(u_c0,u_c1,smoothstep(0.00,0.34,n));col=mix(col,u_c2,smoothstep(0.28,0.60,n));col=mix(col,u_c3,smoothstep(0.58,0.92,n));',
+    'float vmask=smoothstep(0.05,1.05,v_uv.y);col=mix(col,u_c3,vmask*0.22);float topLift=smoothstep(0.5,0.0,v_uv.y);col=mix(col,u_c0,topLift*0.05);',
+    'float grain=fract(sin(dot(v_uv*u_res,vec2(12.9898,78.233)))*43758.5453);col+=(grain-0.5)*0.012;',
+    'gl_FragColor=vec4(clamp(col,0.0,1.0),1.0);}'
+  ].join('');
+  function compile(type,src){var s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return gl.getShaderParameter(s,gl.COMPILE_STATUS)?s:null;}
+  var vs=compile(gl.VERTEX_SHADER,VERT),fs=compile(gl.FRAGMENT_SHADER,FRAG);
+  if(!vs||!fs){useFallback();return;}
+  var prog=gl.createProgram();gl.attachShader(prog,vs);gl.attachShader(prog,fs);gl.linkProgram(prog);
+  if(!gl.getProgramParameter(prog,gl.LINK_STATUS)){useFallback();return;}
+  gl.useProgram(prog);
+  var bufp=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bufp);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  var aloc=gl.getAttribLocation(prog,'a_pos');gl.enableVertexAttribArray(aloc);gl.vertexAttribPointer(aloc,2,gl.FLOAT,false,0,0);
+  var uTime=gl.getUniformLocation(prog,'u_time'),uRes=gl.getUniformLocation(prog,'u_res');
+  gl.uniform1f(gl.getUniformLocation(prog,'u_scale'),NOISE_SCALE);
+  gl.uniform3fv(gl.getUniformLocation(prog,'u_c0'),COLORS[0]);gl.uniform3fv(gl.getUniformLocation(prog,'u_c1'),COLORS[1]);
+  gl.uniform3fv(gl.getUniformLocation(prog,'u_c2'),COLORS[2]);gl.uniform3fv(gl.getUniformLocation(prog,'u_c3'),COLORS[3]);
+  var dpr=Math.min(window.devicePixelRatio||1,DPR_CAP);
+  function resize(){var w=section.clientWidth,h=section.clientHeight,pw=Math.max(1,Math.round(w*dpr)),ph=Math.max(1,Math.round(h*dpr));if(canvas.width!==pw||canvas.height!==ph){canvas.width=pw;canvas.height=ph;}gl.viewport(0,0,pw,ph);gl.uniform2f(uRes,pw,ph);}
+  var ro=('ResizeObserver' in window)?new ResizeObserver(resize):null;if(ro)ro.observe(section);else addEventListener('resize',resize);resize();
+  var elapsed=0,last=performance.now(),rafId=0,inView=true,firstFrame=true;
+  function frame(now){rafId=requestAnimationFrame(frame);var dt=(now-last)/1000;last=now;if(dt>0.1)dt=0.1;elapsed+=dt*SPEED;gl.uniform1f(uTime,elapsed);gl.drawArrays(gl.TRIANGLES,0,3);if(firstFrame){firstFrame=false;section.classList.add('is-ready');}}
+  function play(){if(rafId||!inView||document.hidden)return;last=performance.now();rafId=requestAnimationFrame(frame);}
+  function stop(){if(!rafId)return;cancelAnimationFrame(rafId);rafId=0;}
+  if('IntersectionObserver' in window){new IntersectionObserver(function(e){inView=e[0].isIntersecting;inView?play():stop();},{threshold:0}).observe(section);}
+  document.addEventListener('visibilitychange',function(){document.hidden?stop():play();});
+  play();
+})();
 addEventListener('scroll',function(){head.classList.toggle('scrolled',(window.scrollY||0)>20)},{passive:true});
 /* ===== MOTION: GSAP rich (LIC-grade), else robust fallback ===== */
 var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -1032,12 +1092,6 @@ if(matchMedia('(pointer:fine)').matches){
   document.querySelectorAll('.btn').forEach(function(btn){var s=.28;btn.addEventListener('mousemove',function(e){var r=btn.getBoundingClientRect();gsap.to(btn,{x:(e.clientX-r.left-r.width/2)*s,y:(e.clientY-r.top-r.height/2)*s,scale:1.04,duration:.4,ease:'power3.out'})});btn.addEventListener('mouseleave',function(){gsap.to(btn,{x:0,y:0,scale:1,duration:.8,ease:'elastic.out(1,.42)'})})});
   document.querySelectorAll('.doc,.floatcard').forEach(function(card){card.classList.add('tilt-wrap');card.addEventListener('mousemove',function(e){var r=card.getBoundingClientRect();gsap.to(card,{rotateY:((e.clientX-r.left)/r.width-.5)*8,rotateX:-((e.clientY-r.top)/r.height-.5)*8,y:-5,transformPerspective:800,duration:.5,ease:'power2.out'})});card.addEventListener('mouseleave',function(){gsap.to(card,{rotateY:0,rotateX:0,y:0,duration:.9,ease:'elastic.out(1,.4)'})})});
 }
-/* ===== 2026: gradient-mesh hero — slow drift + scroll parallax ===== */
-(function(){
-  var blobs=document.querySelectorAll('.hero-bg .blob');if(!blobs.length)return;
-  blobs.forEach(function(b,i){gsap.to(b,{xPercent:(i%2?-1:1)*12,yPercent:(i%2?9:-11),duration:9+i*3,repeat:-1,yoyo:true,ease:'sine.inOut'})});
-  gsap.to('.hero-bg',{yPercent:18,ease:'none',scrollTrigger:{trigger:'.hero',start:'top top',end:'bottom top',scrub:.8}});
-})();
 /* ===== 2026: custom cursor — instant dot + lagging ring (desktop only) ===== */
 (function(){
   if(!matchMedia('(pointer:fine)').matches)return;
