@@ -54,8 +54,8 @@ img{display:block;max-width:100%}
 .btn:hover .btn-arrow svg{transform:translateX(3px)}
 
 header{position:fixed;top:0;left:0;right:0;z-index:20;transition:.35s var(--ease)}
-.nav{display:flex;align-items:center;justify-content:space-between;height:78px}
-.brand{font-family:Fraunces;font-weight:500;font-size:26px;letter-spacing:.02em;display:flex;align-items:center;gap:9px}
+.nav{display:flex;align-items:center;justify-content:space-between;height:70px;transition:height .4s var(--ease)}
+.brand{font-family:Fraunces;font-weight:500;font-size:26px;letter-spacing:.02em;display:flex;align-items:center;gap:9px;transition:font-size .4s var(--ease)}
 .brand .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);margin-bottom:14px}
 .nav-links{display:flex;gap:30px;font-size:14.5px;font-weight:500}
 .nav-links a{position:relative;padding:4px 0;color:var(--ink-2);transition:color .2s}
@@ -65,7 +65,8 @@ header{position:fixed;top:0;left:0;right:0;z-index:20;transition:.35s var(--ease
 .nav-right{display:flex;align-items:center;gap:18px}
 .nav-phone{font-weight:600;font-size:15px;letter-spacing:.01em}
 header.scrolled{background:rgba(239,243,248,.95);backdrop-filter:blur(16px) saturate(1.1);border-bottom:1px solid var(--line)}
-header.scrolled .nav{height:64px}
+header.scrolled .nav{height:56px}
+header.scrolled .brand{font-size:23px}
 .burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:6px}
 .burger span{width:24px;height:2px;background:var(--ink);transition:.3s var(--ease)}
 
@@ -334,7 +335,13 @@ html.gsap-on{scroll-behavior:auto}
   .wrap{padding:0 20px}
   .nav-links,.nav-phone{display:none}
   .burger{display:none}
-  .hero{padding:120px 0 70px}
+  .nav{height:54px}
+  header.scrolled .nav{height:46px}
+  .brand{font-size:22px}
+  header.scrolled .brand{font-size:20px}
+  .brand .dot{margin-bottom:11px}
+  header .btn-primary{padding:9px 16px;font-size:13px}
+  .hero{padding:108px 0 64px}
   section{padding:80px 0}
   .sec-head{margin-bottom:40px}
   .strip-in{gap:14px}.strip-item{font-size:13px}
@@ -616,11 +623,12 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   var scrim=document.getElementById('bnavScrim');
   var cells=tabs.concat(menuBtn?[menuBtn]:[]);
   var secs=tabs.map(function(t){return document.getElementById(t.dataset.sec)});
-  var curSec=0,open=false;
+  var curSec=0,open=false,lock=0;
   function moveInd(el){if(!el||!ind)return;ind.style.width=el.offsetWidth+'px';ind.style.transform='translateX('+el.offsetLeft+'px)';}
   function setActive(el){cells.forEach(function(z){z.classList.remove('active')});if(el)el.classList.add('active');}
   function applySection(){if(open)return;moveInd(tabs[curSec]);setActive(tabs[curSec]);}
-  function spy(){if(open)return;var y=(window.scrollY||0)+innerHeight*0.42,idx=0;secs.forEach(function(s,i){if(s&&s.offsetTop<=y)idx=i});if(idx!==curSec){curSec=idx;applySection();}}
+  /* lock disables scrollspy while a tapped anchor smooth-scrolls (else capsule chases the scroll) */
+  function spy(){if(open||Date.now()<lock)return;var y=(window.scrollY||0)+innerHeight*0.42,idx=0;secs.forEach(function(s,i){if(s&&s.offsetTop<=y)idx=i});if(idx!==curSec){curSec=idx;applySection();}}
   function openM(){
     if(open)return;open=true;
     moveInd(menuBtn);setActive(menuBtn);                 /* 1) capsule glides to «Меню», highlights it */
@@ -637,11 +645,11 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
     if(window.lenisInstance)window.lenisInstance.start();document.body.style.overflow='';
     setTimeout(function(){applySection();},260);         /* then capsule glides back to section */
   }
-  tabs.forEach(function(t,i){t.addEventListener('click',function(){curSec=i;if(open)closeM();else applySection();})});
+  tabs.forEach(function(t,i){t.addEventListener('click',function(){lock=Date.now()+2300;curSec=i;if(open)closeM();else applySection();})});
   if(menuBtn)menuBtn.addEventListener('click',function(){open?closeM():openM();});
   if(scrim)scrim.addEventListener('click',closeM);
   bn.querySelectorAll('[data-nav]').forEach(function(a){a.addEventListener('click',function(){
-    var href=a.getAttribute('href');tabs.forEach(function(t,i){if('#'+t.dataset.sec===href)curSec=i;});closeM();
+    lock=Date.now()+2300;var href=a.getAttribute('href');tabs.forEach(function(t,i){if('#'+t.dataset.sec===href)curSec=i;});closeM();
   })});
   addEventListener('scroll',spy,{passive:true});
   addEventListener('resize',function(){open?moveInd(menuBtn):applySection()});
