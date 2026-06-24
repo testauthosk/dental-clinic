@@ -387,9 +387,9 @@ html.gsap-on{scroll-behavior:auto}
   .brand{font-size:22px}
   header.scrolled .brand{font-size:20px}
   .brand .dot{margin-bottom:11px}
-  header .btn-primary{padding:9px 16px;font-size:13px}
+  header .btn-primary{padding:9px 18px;font-size:13px;line-height:1}
   .hero{padding:108px 0 64px}
-  section{padding:40px 0 72px}
+  section{padding:24px 0 72px}
   .sec-head{margin-bottom:40px}
   .strip-in{gap:14px}.strip-item{font-size:13px}
   .svc{grid-template-columns:36px 1fr auto;gap:14px;padding:22px 4px}
@@ -846,7 +846,7 @@ gsap.registerPlugin(ScrollTrigger);
 document.documentElement.classList.add('gsap-on');
 var lenis=null;
 if(window.Lenis){lenis=new Lenis({lerp:.11,smoothWheel:true});window.lenisInstance=lenis;lenis.on('scroll',ScrollTrigger.update);gsap.ticker.add(function(t){lenis.raf(t*1000)});gsap.ticker.lagSmoothing(0);}
-document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href');if(id.length<2)return;var t=document.querySelector(id);if(!t)return;e.preventDefault();if(lenis)lenis.scrollTo(t,{offset:(innerWidth<=680?-50:-62),duration:2.1,easing:function(x){return 1-Math.pow(1-x,4)}});else t.scrollIntoView({behavior:'smooth'})})});
+document.querySelectorAll('a[href^="#"]').forEach(function(a){a.addEventListener('click',function(e){var id=a.getAttribute('href');if(id.length<2)return;var t=document.querySelector(id);if(!t)return;e.preventDefault();if(lenis)lenis.scrollTo(t,{offset:(innerWidth<=680?-48:-62),duration:2.1,easing:function(x){return 1-Math.pow(1-x,4)}});else t.scrollIntoView({behavior:'smooth'})})});
 var E='expo.out';
 document.querySelectorAll('.philo-visual').forEach(function(fig){fig.classList.remove('rv');var img=fig.querySelector('img');gsap.set(fig,{clipPath:'inset(0% 0% 100% 0%)'});if(img)gsap.set(img,{scale:1.16,rotate:2});var tl=gsap.timeline({scrollTrigger:{trigger:fig,start:'top 88%',once:true}});tl.to(fig,{clipPath:'inset(0% 0% 0% 0%)',duration:1.1,ease:E},0);if(img)tl.to(img,{scale:1,rotate:0,duration:1.6,ease:E},0)});
 var ci=0;document.querySelectorAll('.svc,.doc').forEach(function(el){el.classList.remove('rv');var left=(ci++%2)===0;gsap.set(el,{autoAlpha:0,y:52,rotate:left?-3:3,transformOrigin:left?'0% 100%':'100% 100%'});gsap.to(el,{autoAlpha:1,y:0,rotate:0,duration:1.1,ease:E,scrollTrigger:{trigger:el,start:'top 93%',once:true}})});
