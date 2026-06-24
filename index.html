@@ -220,19 +220,37 @@ footer a:hover{color:#fff}
 .slot-when{font-family:Fraunces;font-size:23px;font-weight:500;letter-spacing:-.01em}
 .slot-sub{font-size:13px;color:var(--ink-3);margin:5px 0 22px}
 .slot-label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:12px}
-.slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:24px}
+.slot-grid-wrap{position:relative;margin-bottom:24px}
+.slot-pill{position:absolute;top:0;left:0;width:0;height:0;border-radius:10px;background:var(--accent);z-index:0;opacity:0;pointer-events:none;
+  box-shadow:0 8px 18px -8px rgba(0,107,149,.6);transition:transform .5s cubic-bezier(.32,.72,0,1),width .5s ease,height .5s ease,opacity .25s ease}
+.slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}
 .slot-empty{grid-column:1/-1;color:var(--ink-3);font-size:14px;padding:22px 0;text-align:center}
-.slot{padding:12px 0;border:1px solid var(--line);border-radius:10px;background:none;color:var(--ink);font-size:14px;font-weight:600;
-  cursor:pointer;font-variant-numeric:tabular-nums;transition:.18s var(--ease)}
-@media(hover:hover){.slot:hover{border-color:var(--accent);color:var(--accent)}}
-.slot.on{background:var(--accent);border-color:var(--accent);color:#fff;box-shadow:0 8px 18px -8px rgba(0,107,149,.6)}
+.slot{position:relative;z-index:1;padding:12px 0;border:1px solid var(--line);border-radius:10px;background:none;color:var(--ink);font-size:14px;font-weight:600;
+  cursor:pointer;font-variant-numeric:tabular-nums;transition:color .25s var(--ease),border-color .25s var(--ease)}
+@media(hover:hover){.slot:not(.on):hover{border-color:var(--accent);color:var(--accent)}}
+.slot.on{color:#fff;border-color:transparent}
 .slot.taken{color:var(--ink-3);opacity:.4;text-decoration:line-through;cursor:default;border-style:dashed}
-.slot.taken:hover{border-color:var(--line);color:var(--ink-3)}
 .slot-svc{margin-bottom:22px}
 .slot-svc label{display:block;font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
-.slot-svc select{width:100%;padding:13px 40px 13px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);
-  font-family:Inter;font-size:15px;font-weight:500;cursor:pointer;appearance:none;-webkit-appearance:none;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%237E92A8' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+.cselect{position:relative}
+.cselect-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:13px 14px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);
+  font-family:Inter;font-size:15px;font-weight:500;cursor:pointer;text-align:left;transition:border-color .25s var(--ease)}
+@media(hover:hover){.cselect-trigger:hover{border-color:var(--accent)}}
+.cselect.open .cselect-trigger{border-color:var(--accent)}
+.cselect-chev{width:16px;height:16px;color:var(--ink-3);flex:none;transition:transform .4s var(--ease)}
+.cselect.open .cselect-chev{transform:rotate(180deg)}
+.cselect-panel{position:absolute;left:0;right:0;bottom:calc(100% + 8px);z-index:30;max-height:244px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+  background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:6px;
+  box-shadow:0 24px 54px -18px rgba(7,40,60,.55);
+  opacity:0;transform:translateY(10px) scale(.97);transform-origin:bottom center;pointer-events:none;
+  transition:opacity .34s var(--ease),transform .34s var(--ease)}
+.cselect.open .cselect-panel{opacity:1;transform:none;pointer-events:auto}
+.cselect-opt{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;padding:12px;border:0;background:none;cursor:pointer;
+  font-family:Inter;font-size:14.5px;font-weight:500;color:var(--ink-2);border-radius:9px;transition:background .18s var(--ease),color .18s var(--ease)}
+@media(hover:hover){.cselect-opt:hover{background:var(--accent-soft);color:var(--ink)}}
+.cselect-opt.is-sel{color:var(--accent);font-weight:600}
+.cselect-opt.is-sel::after{content:"✓";color:var(--accent);font-weight:700}
 .book-confirm{justify-content:center;width:100%;margin-top:auto}
 .book-confirm:disabled{opacity:.4;pointer-events:none}
 .slot-note{font-size:12.5px;color:var(--ink-3);text-align:center;margin-top:14px;line-height:1.5}
@@ -296,10 +314,18 @@ html.gsap-on{scroll-behavior:auto}
   .bnav.open .bnav-menu li:nth-child(5) a{transition-delay:.66s}
   .bnav.open .bnav-menu li:nth-child(6) a{transition-delay:.74s}
   .bnav.open .bnav-menu li:nth-child(7) a{transition-delay:.82s}
-  .bnav-cta{flex-shrink:0;margin:16px 0 0;display:flex;align-items:center;justify-content:center;gap:8px;
-    background:var(--accent);color:#fff;font-weight:600;font-size:15px;padding:16px;border-radius:14px;
+  .bnav-foot{flex-shrink:0;margin-top:14px}
+  .bnav-call{display:flex;align-items:center;gap:13px;padding:12px 14px;border-radius:14px;background:var(--accent);color:#fff;
     opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease) .9s,transform .7s var(--ease) .9s}
-  .bnav.open .bnav-cta{opacity:1;transform:none}
+  .bnav.open .bnav-call{opacity:1;transform:none}
+  .bnav-call-ic{width:38px;height:38px;border-radius:11px;background:rgba(255,255,255,.16);display:grid;place-items:center;flex:none}
+  .bnav-call-ic svg{width:19px;height:19px}
+  .bnav-call-tx{display:flex;flex-direction:column;line-height:1.25}
+  .bnav-call-tx small{font-size:10px;letter-spacing:.09em;text-transform:uppercase;opacity:.82;font-weight:600}
+  .bnav-call-tx b{font-size:17px;font-weight:600;letter-spacing:.01em}
+  .bnav-meta{display:flex;justify-content:space-between;gap:10px;margin-top:11px;font-size:11.5px;color:var(--ink-3);
+    opacity:0;transition:opacity .6s ease 1.05s}
+  .bnav.open .bnav-meta{opacity:1}
   /* quick bar pinned bottom */
   .bnav-bar{position:relative;flex-shrink:0;height:54px;display:flex;align-items:stretch;padding:5px}
   .bn-ind{position:absolute;top:5px;bottom:5px;left:0;width:25%;border-radius:13px;background:var(--accent);
@@ -316,7 +342,7 @@ html.gsap-on{scroll-behavior:auto}
   .bn-menu .burg{position:relative;width:17px;height:12px;margin:1px 0}
   .bn-menu .burg span{position:absolute;left:0;width:100%;height:2px;border-radius:2px;background:currentColor;transition:.55s var(--ease)}
   .bn-menu .burg span:nth-child(1){top:0}
-  .bn-menu .burg span:nth-child(2){top:5px}
+  .bn-menu .burg span:nth-child(2){top:5px;width:62%;left:auto;right:0}
   .bn-menu .burg span:nth-child(3){top:10px}
   .bnav.open .bn-menu .burg span:nth-child(1){top:5px;transform:rotate(45deg)}
   .bnav.open .bn-menu .burg span:nth-child(2){opacity:0}
@@ -398,7 +424,13 @@ html.gsap-on{scroll-behavior:auto}
       <li><a href="#book" data-nav>Цены и запись<span class="n">06</span></a></li>
       <li><a href="#contact" data-nav>Контакты<span class="n">07</span></a></li>
     </ul>
-    <a href="#book" class="bnav-cta" data-nav>Записаться на консультацию →</a>
+    <div class="bnav-foot">
+      <a href="tel:+421900000000" class="bnav-call">
+        <span class="bnav-call-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.24 11 11 0 0 0 3.5.56 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11 11 0 0 0 .56 3.5 1 1 0 0 1-.24 1z"/></svg></span>
+        <span class="bnav-call-tx"><small>Звоните ежедневно</small><b class="num">+421 900 000 000</b></span>
+      </a>
+      <div class="bnav-meta"><span>Panská 12 · Bratislava</span><span>Пн–Сб · 9:00–20:00</span></div>
+    </div>
   </div>
   <div class="bnav-bar">
     <span class="bn-ind" id="bnInd"></span>
@@ -559,17 +591,23 @@ html.gsap-on{scroll-behavior:auto}
         <div class="slot-when" id="slotWhen">Выберите дату</div>
         <div class="slot-sub" id="slotSub">Клиника работает Пн–Сб, 9:00 — 20:00</div>
         <div class="slot-label">Свободное время</div>
-        <div class="slot-grid" id="slotGrid"><div class="slot-empty">Сначала выберите день в календаре</div></div>
+        <div class="slot-grid-wrap"><span class="slot-pill" id="slotPill"></span><div class="slot-grid" id="slotGrid"><div class="slot-empty">Сначала выберите день в календаре</div></div></div>
         <div class="slot-svc">
-          <label for="slotSvc">Услуга</label>
-          <select id="slotSvc">
-            <option>Консультация и осмотр</option>
-            <option>Эстетика · виниры, отбеливание</option>
-            <option>Имплантация</option>
-            <option>Ортодонтия · элайнеры</option>
-            <option>Лечение и эндодонтия</option>
-            <option>Детская стоматология</option>
-          </select>
+          <label for="cselTrigger">Услуга</label>
+          <div class="cselect" id="cselect">
+            <button class="cselect-trigger" id="cselTrigger" type="button" aria-haspopup="listbox" aria-expanded="false">
+              <span id="cselValue">Консультация и осмотр</span>
+              <svg class="cselect-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
+            <div class="cselect-panel" id="cselPanel" role="listbox">
+              <button class="cselect-opt is-sel" type="button" role="option">Консультация и осмотр</button>
+              <button class="cselect-opt" type="button" role="option">Эстетика · виниры, отбеливание</button>
+              <button class="cselect-opt" type="button" role="option">Имплантация</button>
+              <button class="cselect-opt" type="button" role="option">Ортодонтия · элайнеры</button>
+              <button class="cselect-opt" type="button" role="option">Лечение и эндодонтия</button>
+              <button class="cselect-opt" type="button" role="option">Детская стоматология</button>
+            </div>
+          </div>
         </div>
         <button class="btn btn-primary book-confirm" id="bookConfirm" type="button" disabled>Зарезервировать</button>
         <p class="slot-note">Демо-форма. В боевой версии заявка уходит в CRM клиники — администратор перезвонит для подтверждения.</p>
@@ -674,7 +712,9 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   var pill=document.getElementById('calPill'),monthLbl=document.getElementById('calMonth');
   var prevB=document.getElementById('calPrev'),nextB=document.getElementById('calNext'),todayB=document.getElementById('calToday');
   var slotGrid=document.getElementById('slotGrid'),slotWhen=document.getElementById('slotWhen'),slotSub=document.getElementById('slotSub');
-  var confirmB=document.getElementById('bookConfirm'),svcSel=document.getElementById('slotSvc'),slotCard=document.getElementById('slotCard');
+  var confirmB=document.getElementById('bookConfirm'),slotCard=document.getElementById('slotCard');
+  var slotPill=document.getElementById('slotPill'),cselValue=document.getElementById('cselValue');
+  function posSlotPill(b){if(!slotPill)return;slotPill.style.opacity='1';slotPill.style.width=b.offsetWidth+'px';slotPill.style.height=b.offsetHeight+'px';slotPill.style.transform='translate('+b.offsetLeft+'px,'+b.offsetTop+'px)';}
   var MON=['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
   var MN=['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
   var DOWS=['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
@@ -715,6 +755,7 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   function whenText(){if(!selected)return 'Выберите дату';var s=DOWS[selected.getDay()]+', '+selected.getDate()+' '+MON[selected.getMonth()];return selTime?s+' · '+selTime:s;}
   function renderSlots(){
     slotWhen.textContent=whenText();
+    if(slotPill)slotPill.style.opacity='0';
     if(!selected){slotGrid.innerHTML='<div class="slot-empty">Сначала выберите день в календаре</div>';confirmB.disabled=true;return;}
     var sat=selected.getDay()===6;
     slotSub.textContent=sat?'Суббота · сокращённый день':'Запись на '+selected.getDate()+' '+MON[selected.getMonth()];
@@ -724,7 +765,7 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
       var taken=idx>0&&(((base>>(idx+1))&3)===0);
       var b=document.createElement('button');b.type='button';b.className='slot'+(taken?' taken':'');b.textContent=tm;
       if(taken)b.disabled=true;
-      else b.addEventListener('click',function(){selTime=tm;[].forEach.call(slotGrid.children,function(s){s.classList.remove('on')});b.classList.add('on');slotWhen.textContent=whenText();confirmB.disabled=false;});
+      else b.addEventListener('click',function(){selTime=tm;[].forEach.call(slotGrid.children,function(s){s.classList.remove('on')});b.classList.add('on');posSlotPill(b);slotWhen.textContent=whenText();confirmB.disabled=false;});
       slotGrid.appendChild(b);
     });
     confirmB.disabled=true;
@@ -735,12 +776,22 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   todayB.addEventListener('click',function(){view=new Date(today.getFullYear(),today.getMonth(),1);selectDay(today);fade();});
   confirmB.addEventListener('click',function(){
     if(!selected||!selTime)return;
-    slotCard.innerHTML='<div class="book-done"><div class="bd-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg></div><h3>Заявка отправлена</h3><p>'+whenText()+'</p><p>'+(svcSel?svcSel.value:'')+'</p><p class="bd-note">Демо. В боевой версии заявка уходит в CRM клиники — администратор перезвонит в течение 15 минут для подтверждения.</p></div>';
+    slotCard.innerHTML='<div class="book-done"><div class="bd-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg></div><h3>Заявка отправлена</h3><p>'+whenText()+'</p><p>'+(cselValue?cselValue.textContent:'')+'</p><p class="bd-note">Демо. В боевой версии заявка уходит в CRM клиники — администратор перезвонит в течение 15 минут для подтверждения.</p></div>';
   });
   (function(){var d=new Date(today);for(var i=0;i<8;i++){if(d.getDay()!==0&&d.getMonth()===view.getMonth()){selected=new Date(d);break;}d.setDate(d.getDate()+1);}})();
   render();renderSlots();
-  addEventListener('resize',positionPill,{passive:true});
+  addEventListener('resize',function(){positionPill();var on=slotGrid.querySelector('.slot.on');if(on)posSlotPill(on);},{passive:true});
   setTimeout(positionPill,500);
+})();
+/* custom service dropdown (replaces native select — premium, smooth) */
+(function(){
+  var cs=document.getElementById('cselect');if(!cs)return;
+  var trig=document.getElementById('cselTrigger'),val=document.getElementById('cselValue');
+  var opts=[].slice.call(cs.querySelectorAll('.cselect-opt'));
+  function close(){cs.classList.remove('open');trig.setAttribute('aria-expanded','false');}
+  trig.addEventListener('click',function(e){e.stopPropagation();var o=cs.classList.toggle('open');trig.setAttribute('aria-expanded',o?'true':'false');});
+  opts.forEach(function(o){o.addEventListener('click',function(){val.textContent=o.textContent;opts.forEach(function(x){x.classList.remove('is-sel')});o.classList.add('is-sel');close();});});
+  document.addEventListener('click',function(e){if(!cs.contains(e.target))close();});
 })();
 addEventListener('scroll',function(){head.classList.toggle('scrolled',(window.scrollY||0)>20)},{passive:true});
 /* ===== MOTION: GSAP rich (LIC-grade), else robust fallback ===== */
