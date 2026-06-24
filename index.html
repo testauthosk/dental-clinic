@@ -282,6 +282,38 @@ footer a:hover{color:#fff}
   .slot{font-size:13px;padding:11px 0}
 }
 
+/* ===== Personal cabinet — header entry + login modal ===== */
+.nav-cab{display:inline-flex;align-items:center;gap:7px;font-size:14.5px;font-weight:500;color:var(--ink-2);transition:color .2s,border-color .2s,background .2s}
+.nav-cab svg{width:18px;height:18px}
+.nav-cab:hover{color:var(--accent)}
+.cab-modal{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:rgba(7,21,37,.42);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);opacity:0;pointer-events:none;transition:opacity .35s var(--ease)}
+.cab-modal.show{opacity:1;pointer-events:auto}
+.cab-card{position:relative;width:100%;max-width:400px;background:var(--surface);border:1px solid var(--line);border-radius:20px;
+  padding:34px 28px 26px;box-shadow:0 40px 90px -30px rgba(7,40,60,.6);text-align:center;
+  transform:translateY(18px) scale(.97);transition:transform .4s var(--ease)}
+.cab-modal.show .cab-card{transform:none}
+.cab-x{position:absolute;top:12px;right:14px;width:34px;height:34px;background:none;border:0;font-size:26px;line-height:1;color:var(--ink-3);cursor:pointer;transition:color .2s}
+.cab-x:hover{color:var(--ink)}
+.cab-ic{width:56px;height:56px;border-radius:16px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;margin:0 auto 18px}
+.cab-ic svg{width:26px;height:26px}
+.cab-card h3{font-family:Fraunces;font-size:27px;font-weight:400;margin-bottom:8px}
+.cab-card>p{color:var(--ink-2);font-size:14.5px;margin-bottom:22px;max-width:32ch;margin-left:auto;margin-right:auto}
+.cab-form{display:flex;flex-direction:column;gap:10px;margin-bottom:22px}
+.cab-form input{width:100%;padding:14px 16px;border:1px solid var(--line);border-radius:11px;background:var(--bg);
+  font-family:Inter;font-size:15px;color:var(--ink);text-align:center;transition:border-color .2s}
+.cab-form input:focus{outline:none;border-color:var(--accent)}
+.cab-form .btn{justify-content:center;width:100%}
+.cab-feat{list-style:none;text-align:left;display:flex;flex-direction:column;gap:12px;padding:20px 4px 0;border-top:1px solid var(--line);margin-bottom:16px}
+.cab-feat li{display:flex;align-items:center;gap:11px;font-size:14px;color:var(--ink-2)}
+.cab-feat li svg{width:18px;height:18px;color:var(--accent);flex:none}
+.cab-note{font-size:12px;color:var(--ink-3)}
+.cab-ok{padding:14px 0 6px;color:var(--ink-2);font-size:15px}
+.cab-ok b{display:block;font-family:Fraunces;font-size:22px;font-weight:400;color:var(--ink);margin-bottom:6px}
+@media(max-width:680px){
+  .nav-cab{width:38px;height:38px;justify-content:center;gap:0;border:1px solid var(--line);border-radius:50%;color:var(--ink)}
+  .nav-cab .cab-lbl{display:none}
+}
 .rv{opacity:0;transform:translateY(26px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
 .rv.in{opacity:1;transform:none}
 .rv.d1{transition-delay:.08s}.rv.d2{transition-delay:.16s}.rv.d3{transition-delay:.24s}
@@ -410,6 +442,7 @@ html.gsap-on{scroll-behavior:auto}
       <a href="#services">Услуги</a><a href="#about">О клинике</a><a href="#results">До / После</a><a href="#team">Врачи</a><a href="#contact">Контакты</a>
     </nav>
     <div class="nav-right">
+      <a href="#" class="nav-cab" data-cab aria-label="Личный кабинет"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.7 3.1-6.2 7-6.2s7 2.5 7 6.2"/></svg><span class="cab-lbl">Кабинет</span></a>
       <a href="tel:+421900000000" class="nav-phone num">+421 900 000 000</a>
       <a href="#book" class="btn btn-primary">Записаться</a>
       <button class="burger" id="burger" aria-label="Меню"><span></span><span></span><span></span></button>
@@ -437,6 +470,7 @@ html.gsap-on{scroll-behavior:auto}
       <li><a href="#results" data-nav>До / После<span class="n">05</span></a></li>
       <li><a href="#book" data-nav>Цены и запись<span class="n">06</span></a></li>
       <li><a href="#contact" data-nav>Контакты<span class="n">07</span></a></li>
+      <li><a href="#" data-cab>Личный кабинет<span class="n">08</span></a></li>
     </ul>
     <div class="bnav-foot">
       <a href="tel:+421900000000" class="bnav-call">
@@ -454,6 +488,25 @@ html.gsap-on{scroll-behavior:auto}
     <button class="bn-tab bn-menu" id="bnMenu" type="button" aria-label="Меню" aria-expanded="false"><span class="burg"><span></span><span></span><span></span></span><span>Меню</span></button>
   </div>
 </nav>
+
+<div class="cab-modal" id="cabModal" aria-hidden="true">
+  <div class="cab-card" role="dialog" aria-label="Личный кабинет">
+    <button class="cab-x" id="cabX" aria-label="Закрыть">&times;</button>
+    <div class="cab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c0-3.7 3.1-6.2 7-6.2s7 2.5 7 6.2"/></svg></div>
+    <h3>Личный кабинет</h3>
+    <p>Войдите по номеру телефона — пришлём код в SMS.</p>
+    <form class="cab-form" id="cabForm">
+      <input type="tel" inputmode="tel" placeholder="+421 900 000 000" aria-label="Номер телефона" required>
+      <button type="submit" class="btn btn-primary">Получить код</button>
+    </form>
+    <ul class="cab-feat">
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3.5" y="5" width="17" height="16" rx="2"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/></svg>Ваши записи и напоминания</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h11l5 5v11H4z"/><path d="M14 4v5h5M8 13h8M8 17h5"/></svg>История лечения и снимки</li>
+      <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="6" width="19" height="13" rx="2"/><path d="M2.5 10h19"/></svg>Счета и оплата онлайн</li>
+    </ul>
+    <p class="cab-note">Демо — кабинет в разработке.</p>
+  </div>
+</div>
 
 <section class="hero" id="top">
   <div class="wrap hero-grid">
@@ -648,7 +701,7 @@ html.gsap-on{scroll-behavior:auto}
     <div class="foot-grid">
       <div><div class="brand">LUMÉ<span class="dot"></span></div><p style="max-width:30ch;font-size:14.5px">Частная стоматология полного цикла в историческом центре Братиславы.</p></div>
       <div><h4>Услуги</h4><ul><li><a href="#">Эстетика</a></li><li><a href="#">Имплантация</a></li><li><a href="#">Ортодонтия</a></li><li><a href="#">Детская</a></li></ul></div>
-      <div><h4>Клиника</h4><ul><li><a href="#about">О нас</a></li><li><a href="#team">Врачи</a></li><li><a href="#results">Работы</a></li><li><a href="#">Цены</a></li></ul></div>
+      <div><h4>Клиника</h4><ul><li><a href="#about">О нас</a></li><li><a href="#team">Врачи</a></li><li><a href="#results">Работы</a></li><li><a href="#" data-cab>Личный кабинет</a></li></ul></div>
       <div><h4>Контакты</h4><ul><li class="num">+421 900 000 000</li><li>Panská 12, 811 01 Bratislava</li><li>Пн–Сб · 9:00 — 20:00</li><li><a href="#">hello@lume.sk</a></li></ul></div>
     </div>
     <div class="foot-bottom"><span>© 2026 LUMÉ Dental Studio. Демо-макет.</span><span>Братислава · Словакия</span></div>
@@ -700,6 +753,7 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   tabs.forEach(function(t,i){t.addEventListener('click',function(){lock=Date.now()+2300;curSec=i;if(open)closeM();else applySection();})});
   if(menuBtn)menuBtn.addEventListener('click',function(){open?closeM():openM();});
   if(scrim)scrim.addEventListener('click',closeM);
+  window.__closeBnav=closeM;
   bn.querySelectorAll('[data-nav]').forEach(function(a){a.addEventListener('click',function(){
     lock=Date.now()+2300;var href=a.getAttribute('href');tabs.forEach(function(t,i){if('#'+t.dataset.sec===href)curSec=i;});closeM();
   })});
@@ -817,6 +871,25 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   trig.addEventListener('click',function(e){e.stopPropagation();cs.classList.contains('open')?close():open();});
   opts.forEach(function(o){o.addEventListener('click',function(){val.textContent=o.textContent;opts.forEach(function(x){x.classList.remove('is-sel')});o.classList.add('is-sel');close();});});
   document.addEventListener('click',function(e){if(!cs.contains(e.target))close();});
+})();
+/* personal cabinet login modal (triggered by any [data-cab]) */
+(function(){
+  var m=document.getElementById('cabModal');if(!m)return;
+  var x=document.getElementById('cabX'),form=document.getElementById('cabForm');
+  function openCab(e){if(e)e.preventDefault();if(window.__closeBnav)window.__closeBnav();
+    m.classList.add('show');m.setAttribute('aria-hidden','false');
+    document.body.style.overflow='hidden';if(window.lenisInstance)window.lenisInstance.stop();}
+  function closeCab(){m.classList.remove('show');m.setAttribute('aria-hidden','true');
+    document.body.style.overflow='';if(window.lenisInstance)window.lenisInstance.start();}
+  document.querySelectorAll('[data-cab]').forEach(function(o){o.addEventListener('click',openCab);});
+  if(x)x.addEventListener('click',closeCab);
+  m.addEventListener('click',function(e){if(e.target===m)closeCab();});
+  addEventListener('keydown',function(e){if(e.key==='Escape'&&m.classList.contains('show'))closeCab();});
+  if(form)form.addEventListener('submit',function(e){e.preventDefault();
+    var card=m.querySelector('.cab-card');
+    card.innerHTML='<button class="cab-x" id="cabX2" aria-label="Закрыть">&times;</button><div class="cab-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20 6L9 17l-5-5"/></svg></div><div class="cab-ok"><b>Код отправлен</b>В рабочей версии тут откроется ваш кабинет: записи, история лечения, снимки и счета.</div><p class="cab-note">Демо — кабинет в разработке.</p>';
+    var x2=document.getElementById('cabX2');if(x2)x2.addEventListener('click',closeCab);
+  });
 })();
 addEventListener('scroll',function(){head.classList.toggle('scrolled',(window.scrollY||0)>20)},{passive:true});
 /* ===== MOTION: GSAP rich (LIC-grade), else robust fallback ===== */
