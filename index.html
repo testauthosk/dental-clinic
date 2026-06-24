@@ -256,19 +256,12 @@ footer a:hover{color:#fff}
   box-shadow:0 -22px 44px -20px rgba(7,40,60,.45)}
 .cselect.open .cselect-panel{max-height:320px;visibility:visible;
   transition:max-height .9s cubic-bezier(.22,1,.36,1),visibility 0s linear 0s}
+/* options are a SOLID block — no independent opacity/stagger; the panel's max-height clips them
+   in lockstep with the border so they never desync */
 .cselect-opt{flex-shrink:0;display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;text-align:left;
   padding:13px 14px;border:0;border-top:1px solid var(--line);background:none;cursor:pointer;
-  font-family:Inter;font-size:14.5px;font-weight:500;color:var(--ink-2);
-  opacity:0;transform:translateY(18px);transition:opacity .7s var(--ease),transform .7s var(--ease),background .18s,color .18s}
+  font-family:Inter;font-size:14.5px;font-weight:500;color:var(--ink-2);transition:background .18s var(--ease),color .18s var(--ease)}
 .cselect-opt:first-child{border-top:0}
-.cselect.open .cselect-opt{opacity:1;transform:none}
-.cselect.closing .cselect-opt{opacity:1;transform:none;transition:none}  /* keep options solid while collapsing (clip, not fade) */
-.cselect.open .cselect-opt:nth-child(1){transition-delay:.34s}
-.cselect.open .cselect-opt:nth-child(2){transition-delay:.42s}
-.cselect.open .cselect-opt:nth-child(3){transition-delay:.50s}
-.cselect.open .cselect-opt:nth-child(4){transition-delay:.58s}
-.cselect.open .cselect-opt:nth-child(5){transition-delay:.66s}
-.cselect.open .cselect-opt:nth-child(6){transition-delay:.74s}
 @media(hover:hover){.cselect-opt:hover{background:var(--accent-soft);color:var(--ink)}}
 .cselect-opt.is-sel{color:var(--accent);font-weight:600}
 .cselect-opt.is-sel::after{content:"✓";color:var(--accent);font-weight:700}
@@ -815,14 +808,8 @@ if(drawer){var bg=document.getElementById('burger'),bx=document.getElementById('
   var cs=document.getElementById('cselect');if(!cs)return;
   var trig=document.getElementById('cselTrigger'),val=document.getElementById('cselValue');
   var opts=[].slice.call(cs.querySelectorAll('.cselect-opt'));
-  var closeTimer=null;
-  function close(){
-    if(!cs.classList.contains('open'))return;
-    cs.classList.add('closing');cs.classList.remove('open');trig.setAttribute('aria-expanded','false');
-    clearTimeout(closeTimer);closeTimer=setTimeout(function(){cs.classList.remove('closing');},900);
-  }
+  function close(){cs.classList.remove('open');trig.setAttribute('aria-expanded','false');}
   function open(){
-    clearTimeout(closeTimer);cs.classList.remove('closing');
     var r=trig.getBoundingClientRect(),need=290,below=window.innerHeight-r.bottom;
     cs.classList.toggle('up', below<need && r.top>below);  /* not enough room below + more room above -> open upward */
     cs.classList.add('open');trig.setAttribute('aria-expanded','true');
